@@ -8,19 +8,27 @@ type WordData = {
   sentence?: string;
 };
 
+type LearningRecord = {
+  word: string;
+  correctCount: number;
+  skipCount: number;
+  lastAnswered: string; // ISO形式
+};
+
 const STORAGE_KEY = "dictation-history";
 
 function App() {
   const [words, setWords] = useState<WordData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [history, setHistory] = useState<string[]>([]);
+  const [records, setRecords] = useState<LearningRecord[]>([]);
 
   // ✅ JSONファイルを読み込む
   useEffect(() => {
     fetch("/en_50k.json")
       .then((res) => res.json())
       .then((data: WordData[]) => {
-        setWords(data.filter((w) => w.sentence).slice(0, 100));
+        const withSentence = data.filter((w) => w.sentence);
+        setWords(withSentence.slice(0, 100));
       });
   }, []);
 
@@ -28,16 +36,48 @@ function App() {
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      setHistory(JSON.parse(stored));
+      setRecords(JSON.parse(stored));
     }
   }, []);
 
+  const updateLearningRecord = (word: string, wasCorrect: boolean) => {
+    const now = new Date().toISOString();
+    setRecords((prev) => {
+      const existing = prev.find((r) => r.word === word);
+      let updated: LearningRecord;
+
+      if (existing) {
+        updated = {
+          ...existing,
+          correctCount: wasCorrect
+            ? existing.correctCount + 1
+            : existing.correctCount,
+          skipCount: wasCorrect ? existing.skipCount : existing.skipCount + 1,
+          lastAnswered: now,
+        };
+        const others = prev.filter((r) => r.word !== word);
+        return [...others, updated];
+      } else {
+        updated = {
+          word,
+          correctCount: wasCorrect ? 1 : 0,
+          skipCount: wasCorrect ? 0 : 1,
+          lastAnswered: now,
+        };
+        return [...prev, updated];
+      }
+    });
+  };
+
+  // ✅ records 更新時に保存
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  }, [records]);
+
   const handleComplete = (wasCorrect: boolean) => {
     const currentWord = words[currentIndex];
-    if (wasCorrect && currentWord) {
-      const newHistory = [...history, currentWord.word];
-      setHistory(newHistory);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+    if (currentWord) {
+      updateLearningRecord(currentWord.word, wasCorrect);
     }
     setCurrentIndex((prev) => prev + 1);
   };
@@ -50,8 +90,10 @@ function App() {
         <h1>🎉 全て完了しました！</h1>
         <h2 style={{ marginTop: "1rem" }}>✅ 正解した履歴：</h2>
         <ul>
-          {history.map((item, index) => (
-            <li key={index}>{item}</li>
+          {records.map((r) => (
+            <li key={r.word}>
+              {r.word}: 正解 {r.correctCount} 回 / スキップ {r.skipCount} 回
+            </li>
           ))}
         </ul>
 
@@ -68,7 +110,7 @@ function App() {
           }}
           onClick={() => {
             localStorage.removeItem(STORAGE_KEY);
-            setHistory([]);
+            setRecords([]);
             setCurrentIndex(0);
           }}
         >
