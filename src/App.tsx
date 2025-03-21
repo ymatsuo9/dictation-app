@@ -16,6 +16,12 @@ type LearningRecord = {
 };
 
 const STORAGE_KEY = "dictation-history";
+const MAX_QUESTIONS = 10;
+const RANK_LIMIT = 1000; // 上位1000語までを対象にする
+
+function shuffle<T>(array: T[]): T[] {
+  return [...array].sort(() => Math.random() - 0.5);
+}
 
 function App() {
   const [words, setWords] = useState<WordData[]>([]);
@@ -28,9 +34,22 @@ function App() {
       .then((res) => res.json())
       .then((data: WordData[]) => {
         const withSentence = data.filter((w) => w.sentence);
-        setWords(withSentence.slice(0, 100));
+
+        // 頻度上位（rankが小さい）かつ例文付きの語だけを対象にする
+        const topRanked = withSentence.filter((w) => w.rank <= RANK_LIMIT);
+
+        const learnedWords = new Set(
+          records.filter((r) => r.correctCount >= 2).map((r) => r.word)
+        );
+
+        const candidates = topRanked.filter((w) => !learnedWords.has(w.word));
+
+        const randomSubset = shuffle(candidates).slice(0, MAX_QUESTIONS);
+
+        setWords(randomSubset);
+        setCurrentIndex(0);
       });
-  }, []);
+  }, [records]);
 
   // ✅ localStorage から履歴を読み込む
   useEffect(() => {
@@ -88,7 +107,7 @@ function App() {
     return (
       <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
         <h1>🎉 全て完了しました！</h1>
-        <h2 style={{ marginTop: "1rem" }}>✅ 正解した履歴：</h2>
+        <h2 style={{ marginTop: "1rem" }}>✅ 学習履歴：</h2>
         <ul>
           {records.map((r) => (
             <li key={r.word}>
