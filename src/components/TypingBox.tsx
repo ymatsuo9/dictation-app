@@ -10,6 +10,11 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
   const [isCorrect, setIsCorrect] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
   const [voicesReady, setVoicesReady] = useState(false); // ← 追加
+  const normalize = (text: string) =>
+    text
+      .toLowerCase()
+      .replace(/[.,!?]/g, "")
+      .trim();
 
   useEffect(() => {
     const voices = speechSynthesis.getVoices();
@@ -45,7 +50,7 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
   }, [prompt]);
 
   useEffect(() => {
-    if (input === prompt && !isCorrect) {
+    if (normalize(input) === normalize(prompt) && !isCorrect) {
       setIsCorrect(true);
       setShowPrompt(true);
 
