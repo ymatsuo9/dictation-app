@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import { TypingBox } from "./components/TypingBox";
 
-const PROMPTS = [
-  "Hello, how are you?",
-  "React is a JavaScript library.",
-  "Typing is fun!",
-];
+const WORDS = ["cat", "dog", "book", "hello", "milk"];
+
+const SENTENCES: Record<string, string> = {
+  cat: "The cat is sleeping.",
+  dog: "The dog is barking.",
+  book: "I am reading a book.",
+  hello: "Hello, how are you?",
+  milk: "I drink milk every morning.",
+};
 
 const STORAGE_KEY = "dictation-history";
 
 function App() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [usedWords, setUsedWords] = useState<string[]>([]);
+  const [currentWord, setCurrentWord] = useState<string | null>(null);
   const [history, setHistory] = useState<string[]>([]);
 
   // 起動時にlocalStorageから履歴を読み込む
@@ -21,24 +26,31 @@ function App() {
     }
   }, []);
 
-  // 正解したときに履歴を更新
-  const handleComplete = (wasCorrect: boolean) => {
-    const solved = PROMPTS[currentIndex];
+  // 初回 or usedWordsが更新されたら次の問題を選ぶ
+  useEffect(() => {
+    const remaining = WORDS.filter((w) => !usedWords.includes(w));
+    if (remaining.length > 0) {
+      const nextWord = remaining[Math.floor(Math.random() * remaining.length)];
+      setCurrentWord(nextWord);
+    } else {
+      setCurrentWord(null); // 全問終了！
+    }
+  }, [usedWords]);
 
-    // ✅ 正解だったときだけ履歴に追加
-    if (wasCorrect) {
-      const newHistory = [...history, solved];
+  const handleComplete = (wasCorrect: boolean) => {
+    if (wasCorrect && currentWord) {
+      const sentence = SENTENCES[currentWord];
+      const newHistory = [...history, sentence];
       setHistory(newHistory);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
     }
 
-    // ✅ 問題は常に次に進む
-    setTimeout(() => {
-      setCurrentIndex((prev) => prev + 1);
-    }, 1000);
+    if (currentWord) {
+      setUsedWords((prev) => [...prev, currentWord]);
+    }
   };
 
-  if (currentIndex >= PROMPTS.length) {
+  if (currentWord === null) {
     return (
       <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
         <h1>🎉 全て完了しました！</h1>
@@ -63,7 +75,7 @@ function App() {
           onClick={() => {
             localStorage.removeItem(STORAGE_KEY);
             setHistory([]);
-            setCurrentIndex(0);
+            setUsedWords([]);
           }}
         >
           🔄 履歴をリセットして再スタート
@@ -74,8 +86,8 @@ function App() {
 
   return (
     <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
-      <h1>🧠 ディクテーション練習</h1>
-      <TypingBox prompt={PROMPTS[currentIndex]} onComplete={handleComplete} />
+      <h1>🧠 ディクテーション練習（単語ベース）</h1>
+      <TypingBox prompt={SENTENCES[currentWord]} onComplete={handleComplete} />
     </div>
   );
 }
