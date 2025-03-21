@@ -20,7 +20,7 @@ function App() {
     fetch("/en_50k.json")
       .then((res) => res.json())
       .then((data: WordData[]) => {
-        setWords(data.slice(0, 100)); // 上位100語で出題してみる
+        setWords(data.filter((w) => w.sentence).slice(0, 100));
       });
   }, []);
 
