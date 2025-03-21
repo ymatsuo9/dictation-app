@@ -21,12 +21,44 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
     setIsCorrect(false);
   }, [prompt]);
 
+  useEffect(() => {
+    // 一部のブラウザで読み上げが機能するためのウォームアップ
+    speechSynthesis.getVoices();
+  }, []);
+
+  const handlePlay = () => {
+    // キューにある前の読み上げをキャンセル
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(prompt);
+    utterance.lang = "en-US";
+    utterance.rate = 1; // 話す速度（1が標準）
+    speechSynthesis.speak(utterance);
+  };
+
   return (
     <div style={{ marginTop: "20px" }}>
       <p>
         <strong>お題：</strong>
         {prompt}
       </p>
+
+      <button
+        onClick={handlePlay}
+        style={{
+          marginBottom: "10px",
+          padding: "6px 12px",
+          fontSize: "14px",
+          backgroundColor: "#28a745",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+        }}
+      >
+        🔊 読み上げる
+      </button>
+
       <input
         type="text"
         value={input}
