@@ -9,15 +9,13 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
   const [input, setInput] = useState("");
   const [isCorrect, setIsCorrect] = useState(false);
 
-  // 入力が正解と一致したら正解判定＋次へ
   useEffect(() => {
-    if (input === prompt) {
+    if (input === prompt && !isCorrect) {
       setIsCorrect(true);
-      onComplete();
+      onComplete(); // ✅ 1回だけ呼ばれるように
     }
-  }, [input, prompt, onComplete]);
+  }, [input, prompt, isCorrect, onComplete]);
 
-  // お題が変わったら状態をリセット
   useEffect(() => {
     setInput("");
     setIsCorrect(false);
