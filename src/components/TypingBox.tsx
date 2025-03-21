@@ -8,6 +8,7 @@ type Props = {
 export const TypingBox = ({ prompt, onComplete }: Props) => {
   const [input, setInput] = useState("");
   const [isCorrect, setIsCorrect] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
     if (input === prompt && !isCorrect) {
@@ -19,6 +20,7 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
   useEffect(() => {
     setInput("");
     setIsCorrect(false);
+    setShowPrompt(false); // 新しい問題に切り替わったら非表示に戻す
   }, [prompt]);
 
   useEffect(() => {
@@ -27,22 +29,24 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
   }, []);
 
   const handlePlay = () => {
-    // キューにある前の読み上げをキャンセル
     speechSynthesis.cancel();
-
     const utterance = new SpeechSynthesisUtterance(prompt);
     utterance.lang = "en-US";
-    utterance.rate = 1; // 話す速度（1が標準）
+    utterance.rate = 1;
     speechSynthesis.speak(utterance);
+    setShowPrompt(false); // 読み上げた直後はまだ非表示のまま
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInput(value);
+    if (!showPrompt) {
+      setShowPrompt(true); // 入力が始まったら表示する
+    }
   };
 
   return (
     <div style={{ marginTop: "20px" }}>
-      <p>
-        <strong>お題：</strong>
-        {prompt}
-      </p>
-
       <button
         onClick={handlePlay}
         style={{
@@ -59,10 +63,17 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
         🔊 読み上げる
       </button>
 
+      {showPrompt && (
+        <p>
+          <strong>お題：</strong>
+          {prompt}
+        </p>
+      )}
+
       <input
         type="text"
         value={input}
-        onChange={(e) => setInput(e.target.value)}
+        onChange={handleInputChange}
         placeholder="聞こえたとおりに入力..."
         style={{ width: "100%", padding: "8px", fontSize: "16px" }}
       />
