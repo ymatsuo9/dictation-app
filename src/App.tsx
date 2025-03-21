@@ -40,9 +40,29 @@ function App() {
         <h2 style={{ marginTop: "1rem" }}>✅ 正解した履歴：</h2>
         <ul>
           {history.map((item, index) => (
-            <li key={index}>• {item}</li>
+            <li key={index}>{item}</li>
           ))}
         </ul>
+
+        <button
+          style={{
+            marginTop: "2rem",
+            padding: "10px 20px",
+            fontSize: "16px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+          onClick={() => {
+            localStorage.removeItem(STORAGE_KEY);
+            setHistory([]);
+            setCurrentIndex(0);
+          }}
+        >
+          🔄 履歴をリセットして再スタート
+        </button>
       </div>
     );
   }
