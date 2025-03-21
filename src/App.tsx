@@ -5,6 +5,7 @@ type WordData = {
   word: string;
   count: number;
   rank: number;
+  sentence?: string;
 };
 
 const STORAGE_KEY = "dictation-history";
@@ -80,7 +81,10 @@ function App() {
   return (
     <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
       <h1>🧠 英単語ディクテーション</h1>
-      <TypingBox prompt={currentWord.word} onComplete={handleComplete} />
+      <TypingBox
+        prompt={currentWord.sentence ?? currentWord.word}
+        onComplete={handleComplete}
+      />
     </div>
   );
 }

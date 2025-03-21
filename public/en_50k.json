@@ -2,52 +2,62 @@
   {
     "word": "you",
     "count": 22484400,
-    "rank": 1
+    "rank": 1,
+    "sentence": "You are my best friend."
   },
   {
     "word": "i",
     "count": 19975318,
-    "rank": 2
+    "rank": 2,
+    "sentence": "I like to play soccer."
   },
   {
     "word": "the",
     "count": 17594291,
-    "rank": 3
+    "rank": 3,
+    "sentence": "The cat is sleeping on the bed."
   },
   {
     "word": "to",
     "count": 13200962,
-    "rank": 4
+    "rank": 4,
+    "sentence": "I want to go to the park."
   },
   {
     "word": "a",
     "count": 11230036,
-    "rank": 5
+    "rank": 5,
+    "sentence": "She has a dog."
   },
   {
     "word": "it",
     "count": 10556589,
-    "rank": 6
+    "rank": 6,
+    "sentence": "It is raining outside."
   },
   {
     "word": "and",
     "count": 8092405,
-    "rank": 7
+    "rank": 7,
+    "sentence": "Tom and Jerry are funny."
   },
   {
     "word": "that",
     "count": 7789269,
-    "rank": 8
+    "rank": 8,
+    "sentence": "I know that boy."
   },
   {
     "word": "of",
     "count": 6839325,
-    "rank": 9
+    "rank": 9,
+    "sentence": "The color of the sky is blue."
   },
   {
     "word": "is",
     "count": 5713829,
-    "rank": 10
+    "rank": 10,
+    "sentence": "She is a great teacher."
   },
   {
     "word": "in",
