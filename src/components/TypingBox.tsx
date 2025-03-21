@@ -47,8 +47,12 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
   useEffect(() => {
     if (input === prompt && !isCorrect) {
       setIsCorrect(true);
-      setShowPrompt(true); // ✅ 正解したときだけ表示！
-      onComplete(); // ✅ 1回だけ呼ばれるように
+      setShowPrompt(true);
+
+      // 少し待ってから次に進む（1000ms = 1秒）
+      setTimeout(() => {
+        onComplete();
+      }, 1000);
     }
   }, [input, prompt, isCorrect, onComplete]);
 
