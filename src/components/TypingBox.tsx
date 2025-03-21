@@ -13,6 +13,7 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
   useEffect(() => {
     if (input === prompt && !isCorrect) {
       setIsCorrect(true);
+      setShowPrompt(true); // ✅ 正解したときだけ表示！
       onComplete(); // ✅ 1回だけ呼ばれるように
     }
   }, [input, prompt, isCorrect, onComplete]);
@@ -35,14 +36,6 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
     utterance.rate = 1;
     speechSynthesis.speak(utterance);
     setShowPrompt(false); // 読み上げた直後はまだ非表示のまま
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInput(value);
-    if (!showPrompt) {
-      setShowPrompt(true); // 入力が始まったら表示する
-    }
   };
 
   return (
@@ -73,7 +66,7 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
       <input
         type="text"
         value={input}
-        onChange={handleInputChange}
+        onChange={(e) => setInput(e.target.value)}
         placeholder="聞こえたとおりに入力..."
         style={{ width: "100%", padding: "8px", fontSize: "16px" }}
       />
