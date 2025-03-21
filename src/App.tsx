@@ -22,12 +22,17 @@ function App() {
   }, []);
 
   // 正解したときに履歴を更新
-  const handleComplete = () => {
+  const handleComplete = (wasCorrect: boolean) => {
     const solved = PROMPTS[currentIndex];
-    const newHistory = [...history, solved];
-    setHistory(newHistory);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
 
+    // ✅ 正解だったときだけ履歴に追加
+    if (wasCorrect) {
+      const newHistory = [...history, solved];
+      setHistory(newHistory);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+    }
+
+    // ✅ 問題は常に次に進む
     setTimeout(() => {
       setCurrentIndex((prev) => prev + 1);
     }, 1000);

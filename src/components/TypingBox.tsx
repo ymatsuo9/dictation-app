@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 type Props = {
   prompt: string;
-  onComplete: () => void;
+  onComplete: (wasCorrect: boolean) => void;
 };
 
 export const TypingBox = ({ prompt, onComplete }: Props) => {
@@ -56,7 +56,7 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
 
       // 少し待ってから次に進む（1000ms = 1秒）
       setTimeout(() => {
-        onComplete();
+        onComplete(true); // ✅ 正解として通知
       }, 1000);
     }
   }, [input, prompt, isCorrect, onComplete]);
@@ -142,6 +142,40 @@ export const TypingBox = ({ prompt, onComplete }: Props) => {
       <p style={{ marginTop: "10px" }}>
         {isCorrect ? "✅ 正解です！" : "⏳ タイピング中…"}
       </p>
+
+      {!isCorrect && (
+        <div style={{ marginTop: "10px" }}>
+          <button
+            onClick={() => setShowPrompt(true)}
+            style={{
+              padding: "6px 12px",
+              fontSize: "14px",
+              marginRight: "10px",
+              backgroundColor: "#ffc107",
+              color: "#000",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            💡 正解を見る
+          </button>
+          <button
+            onClick={() => onComplete(false)}
+            style={{
+              padding: "6px 12px",
+              fontSize: "14px",
+              backgroundColor: "#17a2b8",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            ⏭ スキップ
+          </button>
+        </div>
+      )}
     </div>
   );
 };
