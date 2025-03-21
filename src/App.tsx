@@ -10,9 +10,10 @@ type WordData = {
 
 type LearningRecord = {
   word: string;
+  sentence?: string;
   correctCount: number;
   skipCount: number;
-  lastAnswered: string; // ISO形式
+  lastAnswered: string;
 };
 
 const STORAGE_KEY = "dictation-history";
@@ -59,7 +60,11 @@ function App() {
     }
   }, []);
 
-  const updateLearningRecord = (word: string, wasCorrect: boolean) => {
+  const updateLearningRecord = (
+    word: string,
+    sentence: string | undefined,
+    wasCorrect: boolean
+  ) => {
     const now = new Date().toISOString();
     setRecords((prev) => {
       const existing = prev.find((r) => r.word === word);
@@ -79,6 +84,7 @@ function App() {
       } else {
         updated = {
           word,
+          sentence,
           correctCount: wasCorrect ? 1 : 0,
           skipCount: wasCorrect ? 0 : 1,
           lastAnswered: now,
@@ -96,7 +102,7 @@ function App() {
   const handleComplete = (wasCorrect: boolean) => {
     const currentWord = words[currentIndex];
     if (currentWord) {
-      updateLearningRecord(currentWord.word, wasCorrect);
+      updateLearningRecord(currentWord.word, currentWord.sentence, wasCorrect);
     }
     setCurrentIndex((prev) => prev + 1);
   };
@@ -111,7 +117,13 @@ function App() {
         <ul>
           {records.map((r) => (
             <li key={r.word}>
-              {r.word}: 正解 {r.correctCount} 回 / スキップ {r.skipCount} 回
+              <strong>{r.word}</strong>: 正解 {r.correctCount} 回 / スキップ{" "}
+              {r.skipCount} 回
+              {r.sentence && (
+                <div style={{ fontSize: "0.9em", color: "#555" }}>
+                  例文: {r.sentence}
+                </div>
+              )}
             </li>
           ))}
         </ul>
