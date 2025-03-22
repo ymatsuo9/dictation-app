@@ -21,7 +21,7 @@ export const ProgressSummary: React.FC<Props> = ({
       new Date(b.lastAnswered).getTime() - new Date(a.lastAnswered).getTime()
   );
   const visible = view === "latest" ? sorted.slice(0, 10) : sorted;
-  const correctCount = records.filter((r) => r.correctCount >= 2).length;
+  const correctWords = records.filter((r) => r.correctCount >= 1).length;
 
   return (
     <div style={{ marginTop: "1.5rem" }}>
@@ -71,8 +71,8 @@ export const ProgressSummary: React.FC<Props> = ({
       <div style={{ marginTop: "1.5rem" }}>
         <h3>📊 学習進捗サマリー</h3>
         <p>
-          正解済み単語数: {correctCount} / {totalWords} (
-          {Math.round((correctCount / totalWords) * 100)}%)
+          できた単語の数: {correctWords} / {totalWords}（
+          {Math.round((correctWords / totalWords) * 100)}%）
         </p>
       </div>
     </div>
