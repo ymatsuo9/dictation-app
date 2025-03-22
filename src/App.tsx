@@ -1,20 +1,7 @@
 import { useEffect, useState } from "react";
 import { TypingBox } from "./components/TypingBox";
-
-type WordData = {
-  word: string;
-  count: number;
-  rank: number;
-  sentence?: string;
-};
-
-type LearningRecord = {
-  word: string;
-  sentence?: string;
-  correctCount: number;
-  skipCount: number;
-  lastAnswered: string;
-};
+import { ProgressSummary } from "./components/ProgressSummary";
+import { LearningRecord, WordData } from "./types";
 
 const STORAGE_KEY = "dictation-learning-records";
 const MAX_QUESTIONS = 5;
@@ -29,7 +16,10 @@ function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [records, setRecords] = useState<LearningRecord[]>([]);
   const [recordsLoaded, setRecordsLoaded] = useState(false);
-  const [viewAll, setViewAll] = useState(false);
+  const [view, setView] = useState<"latest" | "all">("latest");
+  const totalWords = records.filter(
+    (r) => r.correctCount > 0 || r.skipCount > 0
+  ).length;
 
   // 履歴読み込み
   useEffect(() => {
@@ -46,7 +36,7 @@ function App() {
 
   // 履歴が読み込まれてから fetch + 出題決定
   useEffect(() => {
-    if (!recordsLoaded) return;
+    if (!recordsLoaded || words.length > 0) return;
 
     const stored = localStorage.getItem(STORAGE_KEY);
     const latestRecords: LearningRecord[] = stored ? JSON.parse(stored) : [];
@@ -78,7 +68,7 @@ function App() {
         setWords(randomSubset);
         setCurrentIndex(0);
       });
-  }, [recordsLoaded]);
+  }, [recordsLoaded, words.length]);
 
   const updateLearningRecord = (
     word: string,
@@ -118,7 +108,6 @@ function App() {
         console.log("🆕 新規追加:", newRecord);
       }
 
-      // ✅ 即時保存
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
       return newRecords;
     });
@@ -132,68 +121,53 @@ function App() {
     setCurrentIndex((prev) => prev + 1);
   };
 
-  const handleContinue = () => {
-    setRecordsLoaded(false);
-    setTimeout(() => {
-      setRecordsLoaded(true);
-    }, 100);
-  };
-
   const currentWord = words[currentIndex];
 
-  const visibleRecords = viewAll
-    ? [...records].sort(
-        (a, b) =>
-          new Date(b.lastAnswered).getTime() -
-          new Date(a.lastAnswered).getTime()
-      )
-    : [...records]
-        .sort(
-          (a, b) =>
-            new Date(b.lastAnswered).getTime() -
-            new Date(a.lastAnswered).getTime()
-        )
-        .slice(0, 10);
+  if (!currentWord) {
+    const shownRecords =
+      view === "latest"
+        ? [...records]
+            .sort(
+              (a, b) =>
+                new Date(b.lastAnswered).getTime() -
+                new Date(a.lastAnswered).getTime()
+            )
+            .slice(0, 10)
+        : records;
 
-  if (!currentWord && recordsLoaded) {
     return (
       <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
-        <h1>🎉 全て完了しました！</h1>
-        <h2 style={{ marginTop: "1rem" }}>✅ 学習履歴：</h2>
-
-        <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+        <h1>🧠 英単語ディクテーション</h1>
+        <h2>✅ 学習履歴：</h2>
+        <div style={{ marginBottom: "1rem" }}>
           <button
-            onClick={() => setViewAll(false)}
+            onClick={() => setView("latest")}
             style={{
+              marginRight: "1rem",
               padding: "6px 12px",
-              fontWeight: viewAll ? "normal" : "bold",
-              textDecoration: viewAll ? "none" : "underline",
-              background: "none",
+              backgroundColor: view === "latest" ? "#ccc" : "#eee",
               border: "none",
+              borderRadius: "4px",
               cursor: "pointer",
-              color: viewAll ? "#555" : "#000",
             }}
           >
             最新10件
           </button>
           <button
-            onClick={() => setViewAll(true)}
+            onClick={() => setView("all")}
             style={{
               padding: "6px 12px",
-              fontWeight: viewAll ? "bold" : "normal",
-              textDecoration: viewAll ? "underline" : "none",
-              background: "none",
+              backgroundColor: view === "all" ? "#ccc" : "#eee",
               border: "none",
+              borderRadius: "4px",
               cursor: "pointer",
-              color: viewAll ? "#000" : "#555",
             }}
           >
             全件表示
           </button>
         </div>
-
         <ul>
-          {visibleRecords.map((r) => (
+          {shownRecords.map((r) => (
             <li key={r.word}>
               <strong>{r.word}</strong>: 正解 {r.correctCount} 回 / スキップ{" "}
               {r.skipCount} 回
@@ -206,48 +180,56 @@ function App() {
           ))}
         </ul>
 
-        <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
-          <button
-            style={{
-              padding: "10px 20px",
-              fontSize: "16px",
-              backgroundColor: "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-            onClick={handleContinue}
-          >
-            ▶️ 続きを学習する
-          </button>
+        <ProgressSummary
+          records={records}
+          totalWords={totalWords}
+          view={view}
+          onChangeView={setView}
+        />
 
-          <button
-            style={{
-              padding: "10px 20px",
-              fontSize: "16px",
-              backgroundColor: "#dc3545",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              if (confirm("本当に履歴をリセットしますか？")) {
-                localStorage.removeItem(STORAGE_KEY);
-                setRecords([]);
-                setWords([]);
-                setCurrentIndex(0);
-                setRecordsLoaded(false);
-                setTimeout(() => {
-                  setRecordsLoaded(true);
-                }, 100);
-              }
-            }}
-          >
-            🗑️ 履歴をリセット
-          </button>
-        </div>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            marginTop: "2rem",
+            padding: "10px 20px",
+            fontSize: "16px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            marginRight: "1rem",
+          }}
+        >
+          ▶️ 続きを学習する
+        </button>
+
+        <button
+          onClick={() => {
+            if (confirm("本当に履歴をリセットしますか？")) {
+              localStorage.removeItem(STORAGE_KEY);
+              setRecords([]);
+              setWords([]);
+              setCurrentIndex(0);
+              setRecordsLoaded(false);
+              setTimeout(() => {
+                setRecordsLoaded(true);
+              }, 100);
+            }
+          }}
+          style={{
+            marginTop: "2rem",
+            padding: "10px 20px",
+            fontSize: "16px",
+            backgroundColor: "#dc3545",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          🗑️ 履歴をリセット
+        </button>
       </div>
     );
   }
@@ -255,12 +237,10 @@ function App() {
   return (
     <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
       <h1>🧠 英単語ディクテーション</h1>
-      {currentWord && (
-        <TypingBox
-          prompt={currentWord.sentence ?? currentWord.word}
-          onComplete={handleComplete}
-        />
-      )}
+      <TypingBox
+        prompt={currentWord.sentence ?? currentWord.word}
+        onComplete={handleComplete}
+      />
     </div>
   );
 }
