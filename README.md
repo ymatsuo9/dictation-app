@@ -1,6 +1,6 @@
 # Dictation Practice App
 
-A simple we app for practicing dictation using example sentences.
+A simple web app for practicing dictation using example sentences.
 
 ## Features
 
