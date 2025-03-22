@@ -6,10 +6,6 @@ import { ProgressSummary } from "./components/ProgressSummary";
 const STORAGE_KEY = "dictation-learning-records";
 const MAX_QUESTIONS = 5;
 
-function shuffle<T>(array: T[]): T[] {
-  return [...array].sort(() => Math.random() - 0.5);
-}
-
 function App() {
   const [wordsWithSentence, setWordsWithSentence] = useState<WordData[]>([]);
   const [words, setWords] = useState<WordData[]>([]);
@@ -46,21 +42,34 @@ function App() {
 
         const candidates = withSentence.filter((w) => {
           const rec = latestRecords.find((r) => r.word === w.word);
-          const eligible = !rec || rec.correctCount < 2;
-          if (rec) {
-            console.log(
-              `🔍 ${w.word}: 正解=${rec.correctCount}, スキップ=${rec.skipCount}, 対象=${eligible}`
-            );
-          }
-          return eligible;
+          return !rec || rec.correctCount < 2;
         });
 
-        const randomSubset = shuffle(candidates).slice(0, MAX_QUESTIONS);
+        // ✅ 頻度に応じた重み付けランダム抽出
+        const selected: WordData[] = [];
+        const used = new Set<string>();
+
+        while (selected.length < Math.min(MAX_QUESTIONS, candidates.length)) {
+          const weights = candidates.map((w) => 1 / w.rank);
+          const totalWeight = weights.reduce((a, b) => a + b, 0);
+          let r = Math.random() * totalWeight;
+
+          for (let i = 0; i < candidates.length; i++) {
+            if (used.has(candidates[i].word)) continue;
+            r -= weights[i];
+            if (r <= 0) {
+              selected.push(candidates[i]);
+              used.add(candidates[i].word);
+              break;
+            }
+          }
+        }
+
         console.log(
           "🎯 出題候補語:",
-          randomSubset.map((w) => w.word)
+          selected.map((w) => w.word)
         );
-        setWords(randomSubset);
+        setWords(selected);
         setCurrentIndex(0);
       });
   }, [recordsLoaded, wordsWithSentence.length]);
