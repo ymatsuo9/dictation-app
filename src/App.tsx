@@ -37,7 +37,7 @@ function App() {
     const latestRecords: LearningRecord[] = stored ? JSON.parse(stored) : [];
     console.log("🔁 fetch & 出題決定開始（最新履歴使用）", latestRecords);
 
-    fetch("/en_50k.json")
+    fetch(`${import.meta.env.BASE_URL}en_50k.json`)
       .then((res) => res.json())
       .then((data: WordData[]) => {
         console.log("📦 読み込んだ単語数:", data.length);
@@ -164,6 +164,10 @@ function App() {
   };
 
   const currentWord = words[currentIndex];
+
+  if (!recordsLoaded) {
+    return <div style={{ padding: "2rem" }}>📦 読み込み中...</div>;
+  }
 
   if (!currentWord) {
     return (
