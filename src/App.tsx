@@ -1,23 +1,22 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { TypingBox } from "./components/TypingBox";
-import { ProgressSummary } from "./components/ProgressSummary";
 import { LearningRecord, WordData } from "./types";
+import { ProgressSummary } from "./components/ProgressSummary";
 
 const STORAGE_KEY = "dictation-learning-records";
 const MAX_QUESTIONS = 5;
-const RANK_LIMIT = 1000;
 
 function shuffle<T>(array: T[]): T[] {
   return [...array].sort(() => Math.random() - 0.5);
 }
 
 function App() {
+  const [wordsWithSentence, setWordsWithSentence] = useState<WordData[]>([]);
   const [words, setWords] = useState<WordData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [records, setRecords] = useState<LearningRecord[]>([]);
   const [recordsLoaded, setRecordsLoaded] = useState(false);
   const [view, setView] = useState<"latest" | "all">("latest");
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -32,7 +31,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!recordsLoaded || words.length > 0) return;
+    if (!recordsLoaded || wordsWithSentence.length > 0) return;
 
     const stored = localStorage.getItem(STORAGE_KEY);
     const latestRecords: LearningRecord[] = stored ? JSON.parse(stored) : [];
@@ -43,11 +42,17 @@ function App() {
       .then((data: WordData[]) => {
         console.log("📦 読み込んだ単語数:", data.length);
         const withSentence = data.filter((w) => w.sentence);
-        const topRanked = withSentence.filter((w) => w.rank <= RANK_LIMIT);
+        setWordsWithSentence(withSentence);
 
-        const candidates = topRanked.filter((w) => {
+        const candidates = withSentence.filter((w) => {
           const rec = latestRecords.find((r) => r.word === w.word);
-          return !rec || rec.correctCount < 2;
+          const eligible = !rec || rec.correctCount < 2;
+          if (rec) {
+            console.log(
+              `🔍 ${w.word}: 正解=${rec.correctCount}, スキップ=${rec.skipCount}, 対象=${eligible}`
+            );
+          }
+          return eligible;
         });
 
         const randomSubset = shuffle(candidates).slice(0, MAX_QUESTIONS);
@@ -58,7 +63,7 @@ function App() {
         setWords(randomSubset);
         setCurrentIndex(0);
       });
-  }, [recordsLoaded, words.length]);
+  }, [recordsLoaded, wordsWithSentence.length]);
 
   const updateLearningRecord = (
     word: string,
@@ -111,167 +116,129 @@ function App() {
     setCurrentIndex((prev) => prev + 1);
   };
 
-  const handleDownload = () => {
-    const csvContent = [
-      ["word", "correctCount", "skipCount", "lastAnswered", "sentence"],
-      ...records.map((r) => [
-        r.word,
-        r.correctCount,
-        r.skipCount,
-        r.lastAnswered,
-        r.sentence ?? "",
-      ]),
-    ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
-      .join("\n");
+  const handleReset = () => {
+    if (confirm("本当に履歴をリセットしますか？")) {
+      localStorage.removeItem(STORAGE_KEY);
+      setRecords([]);
+      setWords([]);
+      setCurrentIndex(0);
+      setRecordsLoaded(false);
+      setTimeout(() => {
+        setRecordsLoaded(true);
+      }, 100);
+    }
+  };
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
+  const handleExport = () => {
+    const blob = new Blob([JSON.stringify(records, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "learning_records.csv";
+    a.download = "dictation-records.json";
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = (event) => {
       try {
-        const json = JSON.parse(reader.result as string);
+        const json = JSON.parse(event.target?.result as string);
         if (Array.isArray(json)) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(json));
           setRecords(json);
-          setWords([]);
-          setCurrentIndex(0);
-          alert("✅ アップロード成功！再出題されます");
+          alert("✅ インポートが完了しました。");
         } else {
-          throw new Error("Invalid format");
+          alert("⚠️ 不正なファイル形式です。");
         }
-      } catch (err) {
-        console.error("❌ JSONの読み込みに失敗しました", err);
-        alert("❌ JSONの読み込みに失敗しました");
+      } catch {
+        alert("⚠️ 読み込みに失敗しました。");
       }
     };
     reader.readAsText(file);
   };
 
   const currentWord = words[currentIndex];
-  const totalWords = records.length;
+
+  if (!currentWord) {
+    return (
+      <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
+        <h1>🧠 英単語ディクテーション</h1>
+        <h2>✅ 学習履歴：</h2>
+        <ProgressSummary
+          records={records}
+          totalWords={wordsWithSentence.length}
+          view={view}
+          onChangeView={setView}
+        />
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "10px",
+            marginTop: "1.5rem",
+          }}
+        >
+          <button
+            onClick={() => window.location.reload()}
+            style={buttonStyleBlue}
+          >
+            ▶️ 続きを学習する
+          </button>
+          <button onClick={handleReset} style={buttonStyleRed}>
+            🗑️ 履歴をリセット
+          </button>
+          <button onClick={handleExport} style={buttonStyleGray}>
+            📤 JSONをダウンロード
+          </button>
+          <label style={{ ...buttonStyleGray, cursor: "pointer" }}>
+            📥 JSONをアップロード
+            <input
+              type="file"
+              accept="application/json"
+              onChange={handleImport}
+              style={{ display: "none" }}
+            />
+          </label>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
       <h1>🧠 英単語ディクテーション</h1>
-
-      {currentWord ? (
-        <TypingBox
-          prompt={currentWord.sentence ?? currentWord.word}
-          onComplete={handleComplete}
-        />
-      ) : (
-        <>
-          <p>✅ 「続きを学習する」で次の出題を取得できます。</p>
-
-          <ProgressSummary
-            records={records}
-            totalWords={totalWords}
-            view={view}
-            onChangeView={setView}
-          />
-
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "10px",
-              marginTop: "2rem",
-            }}
-          >
-            <button
-              onClick={() => {
-                setWords([]);
-                setCurrentIndex(0);
-              }}
-              style={{
-                padding: "10px 16px",
-                fontSize: "14px",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              ▶️ 続きを学習する
-            </button>
-
-            <button
-              onClick={() => {
-                if (confirm("本当に履歴をリセットしますか？")) {
-                  localStorage.removeItem(STORAGE_KEY);
-                  setRecords([]);
-                  setWords([]);
-                  setCurrentIndex(0);
-                }
-              }}
-              style={{
-                padding: "10px 16px",
-                fontSize: "14px",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              🗑️ 履歴をリセット
-            </button>
-
-            <button
-              onClick={handleDownload}
-              style={{
-                padding: "10px 16px",
-                fontSize: "14px",
-                backgroundColor: "#28a745",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              📥 CSVでダウンロード
-            </button>
-
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              style={{
-                padding: "10px 16px",
-                fontSize: "14px",
-                backgroundColor: "#17a2b8",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              📤 JSONをアップロード
-            </button>
-
-            <input
-              type="file"
-              accept="application/json"
-              ref={fileInputRef}
-              onChange={handleUpload}
-              style={{ display: "none" }}
-            />
-          </div>
-        </>
-      )}
+      <TypingBox
+        prompt={currentWord.sentence ?? currentWord.word}
+        onComplete={handleComplete}
+      />
     </div>
   );
 }
+
+const buttonStyleBlue = {
+  padding: "10px 16px",
+  fontSize: "14px",
+  backgroundColor: "#007bff",
+  color: "white",
+  border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
+};
+
+const buttonStyleRed = {
+  ...buttonStyleBlue,
+  backgroundColor: "#dc3545",
+};
+
+const buttonStyleGray = {
+  ...buttonStyleBlue,
+  backgroundColor: "#6c757d",
+};
 
 export default App;
