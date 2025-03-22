@@ -21,12 +21,10 @@ export const ProgressSummary: React.FC<Props> = ({
       new Date(b.lastAnswered).getTime() - new Date(a.lastAnswered).getTime()
   );
   const visible = view === "latest" ? sorted.slice(0, 10) : sorted;
-  const correctWords = records.filter((r) => r.correctCount >= 1).length;
+  const masteredCount = records.filter((r) => r.correctCount >= 1).length;
 
   return (
     <div style={{ marginTop: "1.5rem" }}>
-      <h2>✅ 学習履歴：</h2>
-
       <div style={{ display: "flex", gap: "1rem", marginBottom: "0.5rem" }}>
         <button
           onClick={() => onChangeView("latest")}
@@ -71,8 +69,8 @@ export const ProgressSummary: React.FC<Props> = ({
       <div style={{ marginTop: "1.5rem" }}>
         <h3>📊 学習進捗サマリー</h3>
         <p>
-          できた単語の数: {correctWords} / {totalWords}（
-          {Math.round((correctWords / totalWords) * 100)}%）
+          1回以上正解できた単語数: {masteredCount} / {totalWords}（
+          {Math.round((masteredCount / totalWords) * 100)}%）
         </p>
       </div>
     </div>

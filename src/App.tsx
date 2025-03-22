@@ -48,7 +48,7 @@ function App() {
 
         const candidates = topRanked.filter((w) => {
           const rec = latestRecords.find((r) => r.word === w.word);
-          const eligible = !rec || (rec.correctCount < 2 && rec.skipCount < 2);
+          const eligible = !rec || rec.correctCount < 2; // ✅ スキップ回数は無視
           return eligible;
         });
 
