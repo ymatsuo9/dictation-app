@@ -16,9 +16,9 @@ type LearningRecord = {
   lastAnswered: string;
 };
 
-const STORAGE_KEY = "dictation-history";
-const MAX_QUESTIONS = 10;
-const RANK_LIMIT = 1000; // 上位1000語までを対象にする
+const STORAGE_KEY = "dictation-learning-records";
+const MAX_QUESTIONS = 5;
+const RANK_LIMIT = 1000;
 
 function shuffle<T>(array: T[]): T[] {
   return [...array].sort(() => Math.random() - 0.5);
@@ -28,76 +28,100 @@ function App() {
   const [words, setWords] = useState<WordData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [records, setRecords] = useState<LearningRecord[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // ✅ JSONファイルを読み込む
-  useEffect(() => {
-    fetch("/en_50k.json")
-      .then((res) => res.json())
-      .then((data: WordData[]) => {
-        const withSentence = data.filter((w) => w.sentence);
-
-        // 頻度上位（rankが小さい）かつ例文付きの語だけを対象にする
-        const topRanked = withSentence.filter((w) => w.rank <= RANK_LIMIT);
-
-        const learnedWords = new Set(
-          records.filter((r) => r.correctCount >= 2).map((r) => r.word)
-        );
-
-        const candidates = topRanked.filter((w) => !learnedWords.has(w.word));
-
-        const randomSubset = shuffle(candidates).slice(0, MAX_QUESTIONS);
-
-        setWords(randomSubset);
-        setCurrentIndex(0);
-      });
-  }, [records]);
-
-  // ✅ localStorage から履歴を読み込む
+  // 履歴読み込み
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      setRecords(JSON.parse(stored));
+      const parsed = JSON.parse(stored);
+      console.log("✅ ロードした履歴：", parsed);
+      setRecords(parsed);
+    } else {
+      console.log("⚠️ ローカルストレージに履歴が見つかりませんでした");
     }
+    setIsLoaded(true);
   }, []);
+
+  // 履歴が読み込まれてから fetch + 出題決定
+  useEffect(() => {
+    if (!isLoaded || words.length > 0) return;
+
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const latestRecords: LearningRecord[] = stored ? JSON.parse(stored) : [];
+    console.log("🔁 fetch & 出題決定開始（最新履歴使用）", latestRecords);
+
+    fetch("/en_50k.json")
+      .then((res) => res.json())
+      .then((data: WordData[]) => {
+        console.log("📦 読み込んだ単語数:", data.length);
+        const withSentence = data.filter((w) => w.sentence);
+        const topRanked = withSentence.filter((w) => w.rank <= RANK_LIMIT);
+
+        const candidates = topRanked.filter((w) => {
+          const rec = latestRecords.find((r) => r.word === w.word);
+          const eligible = !rec || (rec.correctCount < 2 && rec.skipCount < 2);
+          if (rec) {
+            console.log(
+              `🔍 ${w.word}: 正解=${rec.correctCount}, スキップ=${rec.skipCount}, 対象=${eligible}`
+            );
+          }
+          return eligible;
+        });
+
+        const randomSubset = shuffle(candidates).slice(0, MAX_QUESTIONS);
+        console.log(
+          "🎯 出題候補語:",
+          randomSubset.map((w) => w.word)
+        );
+        setWords(randomSubset);
+        setCurrentIndex(0);
+      });
+  }, [isLoaded, words.length]);
 
   const updateLearningRecord = (
     word: string,
     sentence: string | undefined,
     wasCorrect: boolean
   ) => {
+    console.log(`📝 updateLearningRecord: ${word}, 正解=${wasCorrect}`);
     const now = new Date().toISOString();
-    setRecords((prev) => {
-      const existing = prev.find((r) => r.word === word);
-      let updated: LearningRecord;
 
-      if (existing) {
-        updated = {
+    setRecords((prev) => {
+      const newRecords = [...prev];
+      const existingIndex = newRecords.findIndex((r) => r.word === word);
+
+      if (existingIndex !== -1) {
+        const existing = newRecords[existingIndex];
+        console.log("🔎 既存レコード:", existing);
+        const updated: LearningRecord = {
           ...existing,
           correctCount: wasCorrect
             ? existing.correctCount + 1
             : existing.correctCount,
           skipCount: wasCorrect ? existing.skipCount : existing.skipCount + 1,
           lastAnswered: now,
+          sentence: sentence ?? existing.sentence,
         };
-        const others = prev.filter((r) => r.word !== word);
-        return [...others, updated];
+        newRecords[existingIndex] = updated;
+        console.log("✅ 更新後の履歴:", updated);
       } else {
-        updated = {
+        const newRecord: LearningRecord = {
           word,
           sentence,
           correctCount: wasCorrect ? 1 : 0,
           skipCount: wasCorrect ? 0 : 1,
           lastAnswered: now,
         };
-        return [...prev, updated];
+        newRecords.push(newRecord);
+        console.log("🆕 新規追加:", newRecord);
       }
+
+      // ✅ 即時保存（useEffectを待たずに）
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
+      return newRecords;
     });
   };
-
-  // ✅ records 更新時に保存
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  }, [records]);
 
   const handleComplete = (wasCorrect: boolean) => {
     const currentWord = words[currentIndex];
@@ -140,9 +164,18 @@ function App() {
             cursor: "pointer",
           }}
           onClick={() => {
-            localStorage.removeItem(STORAGE_KEY);
-            setRecords([]);
-            setCurrentIndex(0);
+            if (confirm("本当に履歴をリセットしますか？")) {
+              localStorage.removeItem(STORAGE_KEY);
+              setRecords([]);
+              setWords([]);
+              setCurrentIndex(0);
+
+              // ✅ 強制的に再出題するため、isLoadedを一度 false → true に切り替える
+              setIsLoaded(false);
+              setTimeout(() => {
+                setIsLoaded(true);
+              }, 100);
+            }
           }}
         >
           🔄 履歴をリセットして再スタート
