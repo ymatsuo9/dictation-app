@@ -62,27 +62,32 @@
   {
     "word": "in",
     "count": 5649786,
-    "rank": 11
+    "rank": 11,
+    "sentence": "There is milk in the fridge."
   },
   {
     "word": "what",
     "count": 5391571,
-    "rank": 12
+    "rank": 12,
+    "sentence": "What is your name?"
   },
   {
     "word": "we",
     "count": 5206831,
-    "rank": 13
+    "rank": 13,
+    "sentence": "We are going to the zoo."
   },
   {
     "word": "me",
     "count": 5075554,
-    "rank": 14
+    "rank": 14,
+    "sentence": "Can you help me, please?"
   },
   {
     "word": "this",
     "count": 4419586,
-    "rank": 15
+    "rank": 15,
+    "sentence": "This is my favorite book."
   },
   {
     "word": "he",

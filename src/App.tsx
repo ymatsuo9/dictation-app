@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { TypingBox } from "./components/TypingBox";
 
-type WordData = {
+// データ型定義
+export type WordData = {
   word: string;
   count: number;
   rank: number;
   sentence?: string;
 };
 
-type LearningRecord = {
+export type LearningRecord = {
   word: string;
   sentence?: string;
   correctCount: number;
@@ -29,7 +30,9 @@ function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [records, setRecords] = useState<LearningRecord[]>([]);
   const [recordsLoaded, setRecordsLoaded] = useState(false);
+  const [showAll, setShowAll] = useState(false); // ✅ 学習履歴の表示切替
 
+  // 履歴読み込み
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -42,6 +45,7 @@ function App() {
     setRecordsLoaded(true);
   }, []);
 
+  // 履歴が読み込まれてから fetch + 出題決定
   useEffect(() => {
     if (!recordsLoaded || words.length > 0) return;
 
@@ -131,12 +135,51 @@ function App() {
   const currentWord = words[currentIndex];
 
   if (!currentWord) {
+    const sortedRecords = [...records].sort(
+      (a, b) =>
+        new Date(b.lastAnswered).getTime() - new Date(a.lastAnswered).getTime()
+    );
+    const recordsToDisplay = showAll
+      ? sortedRecords
+      : sortedRecords.slice(0, 10);
+
     return (
       <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
         <h1>🎉 全て完了しました！</h1>
         <h2 style={{ marginTop: "1rem" }}>✅ 学習履歴：</h2>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <button
+            onClick={() => setShowAll(false)}
+            style={{
+              marginRight: "8px",
+              backgroundColor: showAll ? "#ccc" : "#007bff",
+              color: "white",
+              border: "none",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            最新10件
+          </button>
+          <button
+            onClick={() => setShowAll(true)}
+            style={{
+              backgroundColor: showAll ? "#007bff" : "#ccc",
+              color: "white",
+              border: "none",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            全件表示
+          </button>
+        </div>
+
         <ul>
-          {records.map((r) => (
+          {recordsToDisplay.map((r) => (
             <li key={r.word}>
               <strong>{r.word}</strong>: 正解 {r.correctCount} 回 / スキップ{" "}
               {r.skipCount} 回
@@ -149,9 +192,10 @@ function App() {
           ))}
         </ul>
 
-        <div style={{ marginTop: "2rem" }}>
+        <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
           <button
             style={{
+              flex: 1,
               padding: "10px 20px",
               fontSize: "16px",
               backgroundColor: "#007bff",
@@ -159,18 +203,19 @@ function App() {
               border: "none",
               borderRadius: "4px",
               cursor: "pointer",
-              marginRight: "10px",
             }}
             onClick={() => {
+              // 再出題だけする
               setWords([]);
               setCurrentIndex(0);
             }}
           >
-            🔁 次の問題を出題する
+            ▶️ 続きを学習する
           </button>
 
           <button
             style={{
+              flex: 1,
               padding: "10px 20px",
               fontSize: "16px",
               backgroundColor: "#dc3545",
@@ -192,7 +237,7 @@ function App() {
               }
             }}
           >
-            🗑️ 履歴をリセットして再スタート
+            🗑️ 履歴をリセット
           </button>
         </div>
       </div>
