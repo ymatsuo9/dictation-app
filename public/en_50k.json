@@ -92,427 +92,512 @@
   {
     "word": "he",
     "count": 4295049,
-    "rank": 16
+    "rank": 16,
+    "sentence": "He is going to the store to buy some groceries."
   },
   {
     "word": "for",
     "count": 4002824,
-    "rank": 17
+    "rank": 17,
+    "sentence": "I am going to the store for some groceries."
   },
   {
     "word": "my",
     "count": 3855861,
-    "rank": 18
+    "rank": 18,
+    "sentence": "This is my favorite book."
   },
   {
     "word": "on",
     "count": 3731903,
-    "rank": 19
+    "rank": 19,
+    "sentence": "She placed her keys on the table."
   },
   {
     "word": "have",
     "count": 3705127,
-    "rank": 20
+    "rank": 20,
+    "sentence": "I have a lot of homework to do tonight."
   },
   {
     "word": "your",
     "count": 3611383,
-    "rank": 21
+    "rank": 21,
+    "sentence": "Can I borrow your pen for a moment?"
   },
   {
     "word": "do",
     "count": 3437767,
-    "rank": 22
+    "rank": 22,
+    "sentence": "I need to do my homework before dinner."
   },
   {
     "word": "no",
     "count": 3403577,
-    "rank": 23
+    "rank": 23,
+    "sentence": "No, I do not want any dessert tonight."
   },
   {
     "word": "was",
     "count": 3368812,
-    "rank": 24
+    "rank": 24,
+    "sentence": "She was tired after a long day at work."
   },
   {
     "word": "not",
     "count": 3319097,
-    "rank": 25
+    "rank": 25,
+    "sentence": "I do not like coffee."
   },
   {
     "word": "are",
     "count": 3290764,
-    "rank": 26
+    "rank": 26,
+    "sentence": "They are going to the park later."
   },
   {
     "word": "don",
     "count": 3269470,
-    "rank": 27
+    "rank": 27,
+    "sentence": "Don't forget to wear your mask when you go out."
   },
   {
     "word": "be",
     "count": 3258954,
-    "rank": 28
+    "rank": 28,
+    "sentence": "She will be there soon."
   },
   {
     "word": "know",
     "count": 3010563,
-    "rank": 29
+    "rank": 29,
+    "sentence": "I know how to play the guitar."
   },
   {
     "word": "can",
     "count": 2974080,
-    "rank": 30
+    "rank": 30,
+    "sentence": "I can run a mile in under 10 minutes."
   },
   {
     "word": "with",
     "count": 2955209,
-    "rank": 31
+    "rank": 31,
+    "sentence": "I went to the store with my friend."
   },
   {
     "word": "but",
     "count": 2794737,
-    "rank": 32
+    "rank": 32,
+    "sentence": "I wanted to go to the beach, but it started raining."
   },
   {
     "word": "all",
     "count": 2726999,
-    "rank": 33
+    "rank": 33,
+    "sentence": "She ate all the cookies."
   },
   {
     "word": "so",
     "count": 2627759,
-    "rank": 34
+    "rank": 34,
+    "sentence": "I am feeling tired, so I am going to bed early tonight."
   },
   {
     "word": "just",
     "count": 2538768,
-    "rank": 35
+    "rank": 35,
+    "sentence": "I just finished my homework."
   },
   {
     "word": "here",
     "count": 2448203,
-    "rank": 36
+    "rank": 36,
+    "sentence": "Please come here and help me with this project."
   },
   {
     "word": "there",
     "count": 2435611,
-    "rank": 37
+    "rank": 37,
+    "sentence": "I will meet you there at 5 o'clock."
   },
   {
     "word": "they",
     "count": 2366899,
-    "rank": 38
+    "rank": 38,
+    "sentence": "I saw them at the park yesterday."
   },
   {
     "word": "like",
     "count": 2286933,
-    "rank": 39
+    "rank": 39,
+    "sentence": "I like to read books in my free time."
   },
   {
     "word": "get",
     "count": 2238814,
-    "rank": 40
+    "rank": 40,
+    "sentence": "I need to get some groceries after work."
   },
   {
     "word": "she",
     "count": 2158362,
-    "rank": 41
+    "rank": 41,
+    "sentence": "She is going to the store to buy some groceries."
   },
   {
     "word": "go",
     "count": 2153280,
-    "rank": 42
+    "rank": 42,
+    "sentence": "I need to go to the grocery store to buy some milk."
   },
   {
     "word": "if",
     "count": 2041724,
-    "rank": 43
+    "rank": 43,
+    "sentence": "If you study hard, you will do well on the exam."
   },
   {
     "word": "right",
     "count": 1974545,
-    "rank": 44
+    "rank": 44,
+    "sentence": "She is sitting on the right side of the room."
   },
   {
     "word": "out",
     "count": 1937990,
-    "rank": 45
+    "rank": 45,
+    "sentence": "She went out for a walk in the park."
   },
   {
     "word": "about",
     "count": 1911008,
-    "rank": 46
+    "rank": 46,
+    "sentence": "I'm thinking about what to have for dinner."
   },
   {
     "word": "up",
     "count": 1910433,
-    "rank": 47
+    "rank": 47,
+    "sentence": "She woke up early to go for a run."
   },
   {
     "word": "him",
     "count": 1904981,
-    "rank": 48
+    "rank": 48,
+    "sentence": "I saw him at the park yesterday."
   },
   {
     "word": "at",
     "count": 1879311,
-    "rank": 49
+    "rank": 49,
+    "sentence": "She is waiting at the bus stop."
   },
   {
     "word": "now",
     "count": 1768245,
-    "rank": 50
+    "rank": 50,
+    "sentence": "I am busy right now."
   },
   {
     "word": "one",
     "count": 1757361,
-    "rank": 51
+    "rank": 51,
+    "sentence": "I would like to have one cookie, please."
   },
   {
     "word": "come",
     "count": 1743498,
-    "rank": 52
+    "rank": 52,
+    "sentence": "I will come to your house tomorrow for dinner."
   },
   {
     "word": "oh",
     "count": 1719430,
-    "rank": 53
+    "rank": 53,
+    "sentence": "Oh no, I forgot to pack my lunch for work today."
   },
   {
     "word": "her",
     "count": 1681932,
-    "rank": 54
+    "rank": 54,
+    "sentence": "I saw her at the grocery store yesterday."
   },
   {
     "word": "how",
     "count": 1666673,
-    "rank": 55
+    "rank": 55,
+    "sentence": "How did you learn to play the guitar so well?"
   },
   {
     "word": "well",
     "count": 1621442,
-    "rank": 56
+    "rank": 56,
+    "sentence": "She is feeling well after resting all day."
   },
   {
     "word": "will",
     "count": 1539938,
-    "rank": 57
+    "rank": 57,
+    "sentence": "I will finish my homework before dinner."
   },
   {
     "word": "want",
     "count": 1535169,
-    "rank": 58
+    "rank": 58,
+    "sentence": "I want to go to the beach this weekend."
   },
   {
     "word": "got",
     "count": 1521716,
-    "rank": 59
+    "rank": 59,
+    "sentence": "I got a new job offer today."
   },
   {
     "word": "yeah",
     "count": 1499782,
-    "rank": 60
+    "rank": 60,
+    "sentence": "\"Yeah, I'll be there in five minutes.\""
   },
   {
     "word": "think",
     "count": 1416770,
-    "rank": 61
+    "rank": 61,
+    "sentence": "I think we should go for a walk this evening."
   },
   {
     "word": "see",
     "count": 1386818,
-    "rank": 62
+    "rank": 62,
+    "sentence": "I can see the mountains in the distance."
   },
   {
     "word": "as",
     "count": 1374881,
-    "rank": 63
+    "rank": 63,
+    "sentence": "I will do my best as your mentor."
   },
   {
     "word": "who",
     "count": 1354196,
-    "rank": 64
+    "rank": 64,
+    "sentence": "Who is that person standing over there?"
   },
   {
     "word": "good",
     "count": 1353790,
-    "rank": 65
+    "rank": 65,
+    "sentence": "She is a good student."
   },
   {
     "word": "why",
     "count": 1351530,
-    "rank": 66
+    "rank": 66,
+    "sentence": "Why did you decide to quit your job?"
   },
   {
     "word": "did",
     "count": 1348472,
-    "rank": 67
+    "rank": 67,
+    "sentence": "I did my homework last night."
   },
   {
     "word": "let",
     "count": 1335090,
-    "rank": 68
+    "rank": 68,
+    "sentence": "Let me know if you need any help with your homework."
   },
   {
     "word": "from",
     "count": 1320557,
-    "rank": 69
+    "rank": 69,
+    "sentence": "I am from Canada."
   },
   {
     "word": "his",
     "count": 1292908,
-    "rank": 70
+    "rank": 70,
+    "sentence": "He forgot his keys on the kitchen counter."
   },
   {
     "word": "yes",
     "count": 1272870,
-    "rank": 71
+    "rank": 71,
+    "sentence": "Yes, I would like a cup of coffee."
   },
   {
     "word": "when",
     "count": 1184778,
-    "rank": 72
+    "rank": 72,
+    "sentence": "When will you be coming over to visit?"
   },
   {
     "word": "going",
     "count": 1178719,
-    "rank": 73
+    "rank": 73,
+    "sentence": "I am going to the store to buy some groceries."
   },
   {
     "word": "l",
     "count": 1158454,
-    "rank": 74
+    "rank": 74,
+    "sentence": "I can't believe l lost my keys again."
   },
   {
     "word": "an",
     "count": 1117568,
-    "rank": 75
+    "rank": 75,
+    "sentence": "I have an apple for a snack."
   },
   {
     "word": "time",
     "count": 1117449,
-    "rank": 76
+    "rank": 76,
+    "sentence": "I don't have time to watch a movie tonight."
   },
   {
     "word": "back",
     "count": 1088055,
-    "rank": 77
+    "rank": 77,
+    "sentence": "I hurt my back while lifting heavy boxes."
   },
   {
     "word": "okay",
     "count": 1077767,
-    "rank": 78
+    "rank": 78,
+    "sentence": "Okay, I will see you tomorrow at 9am."
   },
   {
     "word": "look",
     "count": 1050480,
-    "rank": 79
+    "rank": 79,
+    "sentence": "Can you look at this picture and tell me what you think?"
   },
   {
     "word": "us",
     "count": 1046373,
-    "rank": 80
+    "rank": 80,
+    "sentence": "Can you please save some cake for us?"
   },
   {
     "word": "where",
     "count": 1036121,
-    "rank": 81
+    "rank": 81,
+    "sentence": "Where is the nearest grocery store?"
   },
   {
     "word": "them",
     "count": 1034857,
-    "rank": 82
+    "rank": 82,
+    "sentence": "I saw them at the store yesterday."
   },
   {
     "word": "take",
     "count": 1030966,
-    "rank": 83
+    "rank": 83,
+    "sentence": "Please take out the trash before you go to bed."
   },
   {
     "word": "would",
     "count": 1024970,
-    "rank": 84
+    "rank": 84,
+    "sentence": "If I had more time, I would go for a walk in the park."
   },
   {
     "word": "were",
     "count": 1012596,
-    "rank": 85
+    "rank": 85,
+    "sentence": "We were happy to see our friends at the party."
   },
   {
     "word": "then",
     "count": 985863,
-    "rank": 86
+    "rank": 86,
+    "sentence": "I will finish my homework and then go for a run."
   },
   {
     "word": "or",
     "count": 980608,
-    "rank": 87
+    "rank": 87,
+    "sentence": "You can have cake or ice cream for dessert."
   },
   {
     "word": "had",
     "count": 979259,
-    "rank": 88
+    "rank": 88,
+    "sentence": "I had a delicious dinner last night."
   },
   {
     "word": "been",
     "count": 970279,
-    "rank": 89
+    "rank": 89,
+    "sentence": "I have been to the new restaurant downtown."
   },
   {
     "word": "tell",
     "count": 922643,
-    "rank": 90
+    "rank": 90,
+    "sentence": "Can you tell me where the nearest gas station is?"
   },
   {
     "word": "our",
     "count": 921974,
-    "rank": 91
+    "rank": 91,
+    "sentence": "Our house is located near the park."
   },
   {
     "word": "man",
     "count": 910369,
-    "rank": 92
+    "rank": 92,
+    "sentence": "The man walked his dog in the park."
   },
   {
     "word": "some",
     "count": 903823,
-    "rank": 93
+    "rank": 93,
+    "sentence": "I would like to buy some apples at the grocery store."
   },
   {
     "word": "say",
     "count": 901201,
-    "rank": 94
+    "rank": 94,
+    "sentence": "She didn't say anything during the meeting."
   },
   {
     "word": "really",
     "count": 898387,
-    "rank": 95
+    "rank": 95,
+    "sentence": "I'm really excited for the weekend."
   },
   {
     "word": "gonna",
     "count": 897629,
-    "rank": 96
+    "rank": 96,
+    "sentence": "I'm gonna go for a run after work."
   },
   {
     "word": "hey",
     "count": 879676,
-    "rank": 97
+    "rank": 97,
+    "sentence": "Hey, how are you doing today?"
   },
   {
     "word": "could",
     "count": 857107,
-    "rank": 98
+    "rank": 98,
+    "sentence": "I could go for a walk in the park this evening."
   },
   {
     "word": "didn",
     "count": 853640,
-    "rank": 99
+    "rank": 99,
+    "sentence": "I didn't see her at the party last night."
   },
   {
     "word": "by",
     "count": 841594,
-    "rank": 100
+    "rank": 100,
+    "sentence": "I will pick you up by 6 PM."
   },
   {
     "word": "has",
