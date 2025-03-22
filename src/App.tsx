@@ -28,9 +28,8 @@ function App() {
   const [words, setWords] = useState<WordData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [records, setRecords] = useState<LearningRecord[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [recordsLoaded, setRecordsLoaded] = useState(false);
 
-  // 履歴読み込み
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -40,12 +39,11 @@ function App() {
     } else {
       console.log("⚠️ ローカルストレージに履歴が見つかりませんでした");
     }
-    setIsLoaded(true);
+    setRecordsLoaded(true);
   }, []);
 
-  // 履歴が読み込まれてから fetch + 出題決定
   useEffect(() => {
-    if (!isLoaded || words.length > 0) return;
+    if (!recordsLoaded || words.length > 0) return;
 
     const stored = localStorage.getItem(STORAGE_KEY);
     const latestRecords: LearningRecord[] = stored ? JSON.parse(stored) : [];
@@ -77,7 +75,7 @@ function App() {
         setWords(randomSubset);
         setCurrentIndex(0);
       });
-  }, [isLoaded, words.length]);
+  }, [recordsLoaded, words.length]);
 
   const updateLearningRecord = (
     word: string,
@@ -117,7 +115,6 @@ function App() {
         console.log("🆕 新規追加:", newRecord);
       }
 
-      // ✅ 即時保存（useEffectを待たずに）
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
       return newRecords;
     });
@@ -152,34 +149,52 @@ function App() {
           ))}
         </ul>
 
-        <button
-          style={{
-            marginTop: "2rem",
-            padding: "10px 20px",
-            fontSize: "16px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-          onClick={() => {
-            if (confirm("本当に履歴をリセットしますか？")) {
-              localStorage.removeItem(STORAGE_KEY);
-              setRecords([]);
+        <div style={{ marginTop: "2rem" }}>
+          <button
+            style={{
+              padding: "10px 20px",
+              fontSize: "16px",
+              backgroundColor: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              marginRight: "10px",
+            }}
+            onClick={() => {
               setWords([]);
               setCurrentIndex(0);
+            }}
+          >
+            🔁 次の問題を出題する
+          </button>
 
-              // ✅ 強制的に再出題するため、isLoadedを一度 false → true に切り替える
-              setIsLoaded(false);
-              setTimeout(() => {
-                setIsLoaded(true);
-              }, 100);
-            }
-          }}
-        >
-          🔄 履歴をリセットして再スタート
-        </button>
+          <button
+            style={{
+              padding: "10px 20px",
+              fontSize: "16px",
+              backgroundColor: "#dc3545",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              if (confirm("本当に履歴をリセットしますか？")) {
+                localStorage.removeItem(STORAGE_KEY);
+                setRecords([]);
+                setWords([]);
+                setCurrentIndex(0);
+                setRecordsLoaded(false);
+                setTimeout(() => {
+                  setRecordsLoaded(true);
+                }, 100);
+              }
+            }}
+          >
+            🗑️ 履歴をリセットして再スタート
+          </button>
+        </div>
       </div>
     );
   }
