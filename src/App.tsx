@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { TypingBox } from "./components/TypingBox";
 import { ProgressSummary } from "./components/ProgressSummary";
-import { LearningRecord, WordData } from "./types";
+import { WordData, LearningRecord } from "./types";
 
 const STORAGE_KEY = "dictation-learning-records";
 const MAX_QUESTIONS = 5;
@@ -17,9 +17,6 @@ function App() {
   const [records, setRecords] = useState<LearningRecord[]>([]);
   const [recordsLoaded, setRecordsLoaded] = useState(false);
   const [view, setView] = useState<"latest" | "all">("latest");
-  const totalWords = records.filter(
-    (r) => r.correctCount > 0 || r.skipCount > 0
-  ).length;
 
   // 履歴読み込み
   useEffect(() => {
@@ -52,11 +49,6 @@ function App() {
         const candidates = topRanked.filter((w) => {
           const rec = latestRecords.find((r) => r.word === w.word);
           const eligible = !rec || (rec.correctCount < 2 && rec.skipCount < 2);
-          if (rec) {
-            console.log(
-              `🔍 ${w.word}: 正解=${rec.correctCount}, スキップ=${rec.skipCount}, 対象=${eligible}`
-            );
-          }
           return eligible;
         });
 
@@ -84,7 +76,6 @@ function App() {
 
       if (existingIndex !== -1) {
         const existing = newRecords[existingIndex];
-        console.log("🔎 既存レコード:", existing);
         const updated: LearningRecord = {
           ...existing,
           correctCount: wasCorrect
@@ -95,7 +86,6 @@ function App() {
           sentence: sentence ?? existing.sentence,
         };
         newRecords[existingIndex] = updated;
-        console.log("✅ 更新後の履歴:", updated);
       } else {
         const newRecord: LearningRecord = {
           word,
@@ -105,7 +95,6 @@ function App() {
           lastAnswered: now,
         };
         newRecords.push(newRecord);
-        console.log("🆕 新規追加:", newRecord);
       }
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
@@ -121,126 +110,74 @@ function App() {
     setCurrentIndex((prev) => prev + 1);
   };
 
+  const handleContinue = () => {
+    setWords([]);
+    setRecordsLoaded(false);
+    setTimeout(() => setRecordsLoaded(true), 100);
+  };
+
+  const handleReset = () => {
+    if (confirm("本当に履歴をリセットしますか？")) {
+      localStorage.removeItem(STORAGE_KEY);
+      setRecords([]);
+      setWords([]);
+      setCurrentIndex(0);
+      setRecordsLoaded(false);
+      setTimeout(() => setRecordsLoaded(true), 100);
+    }
+  };
+
   const currentWord = words[currentIndex];
-
-  if (!currentWord) {
-    const shownRecords =
-      view === "latest"
-        ? [...records]
-            .sort(
-              (a, b) =>
-                new Date(b.lastAnswered).getTime() -
-                new Date(a.lastAnswered).getTime()
-            )
-            .slice(0, 10)
-        : records;
-
-    return (
-      <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
-        <h1>🧠 英単語ディクテーション</h1>
-        <h2>✅ 学習履歴：</h2>
-        <div style={{ marginBottom: "1rem" }}>
-          <button
-            onClick={() => setView("latest")}
-            style={{
-              marginRight: "1rem",
-              padding: "6px 12px",
-              backgroundColor: view === "latest" ? "#ccc" : "#eee",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-          >
-            最新10件
-          </button>
-          <button
-            onClick={() => setView("all")}
-            style={{
-              padding: "6px 12px",
-              backgroundColor: view === "all" ? "#ccc" : "#eee",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-          >
-            全件表示
-          </button>
-        </div>
-        <ul>
-          {shownRecords.map((r) => (
-            <li key={r.word}>
-              <strong>{r.word}</strong>: 正解 {r.correctCount} 回 / スキップ{" "}
-              {r.skipCount} 回
-              {r.sentence && (
-                <div style={{ fontSize: "0.9em", color: "#555" }}>
-                  例文: {r.sentence}
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
-
-        <ProgressSummary
-          records={records}
-          totalWords={totalWords}
-          view={view}
-          onChangeView={setView}
-        />
-
-        <button
-          onClick={() => window.location.reload()}
-          style={{
-            marginTop: "2rem",
-            padding: "10px 20px",
-            fontSize: "16px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            marginRight: "1rem",
-          }}
-        >
-          ▶️ 続きを学習する
-        </button>
-
-        <button
-          onClick={() => {
-            if (confirm("本当に履歴をリセットしますか？")) {
-              localStorage.removeItem(STORAGE_KEY);
-              setRecords([]);
-              setWords([]);
-              setCurrentIndex(0);
-              setRecordsLoaded(false);
-              setTimeout(() => {
-                setRecordsLoaded(true);
-              }, 100);
-            }
-          }}
-          style={{
-            marginTop: "2rem",
-            padding: "10px 20px",
-            fontSize: "16px",
-            backgroundColor: "#dc3545",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          🗑️ 履歴をリセット
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
       <h1>🧠 英単語ディクテーション</h1>
-      <TypingBox
-        prompt={currentWord.sentence ?? currentWord.word}
-        onComplete={handleComplete}
-      />
+      {currentWord ? (
+        <TypingBox
+          prompt={currentWord.sentence ?? currentWord.word}
+          onComplete={handleComplete}
+        />
+      ) : (
+        <>
+          <ProgressSummary
+            records={records}
+            totalWords={50000}
+            view={view}
+            onChangeView={(v) => setView(v)}
+          />
+          <div style={{ marginTop: "1.5rem" }}>
+            <button
+              onClick={handleContinue}
+              style={{
+                marginRight: "1rem",
+                padding: "10px 20px",
+                fontSize: "16px",
+                backgroundColor: "#007bff",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              ▶️ 続きを学習する
+            </button>
+            <button
+              onClick={handleReset}
+              style={{
+                padding: "10px 20px",
+                fontSize: "16px",
+                backgroundColor: "#dc3545",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              🗑️ 履歴をリセット
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
