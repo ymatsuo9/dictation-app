@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
 import { TypingBox } from "./components/TypingBox";
 
-// データ型定義
-export type WordData = {
+type WordData = {
   word: string;
   count: number;
   rank: number;
   sentence?: string;
 };
 
-export type LearningRecord = {
+type LearningRecord = {
   word: string;
   sentence?: string;
   correctCount: number;
@@ -30,7 +29,7 @@ function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [records, setRecords] = useState<LearningRecord[]>([]);
   const [recordsLoaded, setRecordsLoaded] = useState(false);
-  const [showAll, setShowAll] = useState(false); // ✅ 学習履歴の表示切替
+  const [viewAll, setViewAll] = useState(false);
 
   // 履歴読み込み
   useEffect(() => {
@@ -47,7 +46,7 @@ function App() {
 
   // 履歴が読み込まれてから fetch + 出題決定
   useEffect(() => {
-    if (!recordsLoaded || words.length > 0) return;
+    if (!recordsLoaded) return;
 
     const stored = localStorage.getItem(STORAGE_KEY);
     const latestRecords: LearningRecord[] = stored ? JSON.parse(stored) : [];
@@ -79,7 +78,7 @@ function App() {
         setWords(randomSubset);
         setCurrentIndex(0);
       });
-  }, [recordsLoaded, words.length]);
+  }, [recordsLoaded]);
 
   const updateLearningRecord = (
     word: string,
@@ -119,6 +118,7 @@ function App() {
         console.log("🆕 新規追加:", newRecord);
       }
 
+      // ✅ 即時保存
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newRecords));
       return newRecords;
     });
@@ -132,46 +132,60 @@ function App() {
     setCurrentIndex((prev) => prev + 1);
   };
 
+  const handleContinue = () => {
+    setRecordsLoaded(false);
+    setTimeout(() => {
+      setRecordsLoaded(true);
+    }, 100);
+  };
+
   const currentWord = words[currentIndex];
 
-  if (!currentWord) {
-    const sortedRecords = [...records].sort(
-      (a, b) =>
-        new Date(b.lastAnswered).getTime() - new Date(a.lastAnswered).getTime()
-    );
-    const recordsToDisplay = showAll
-      ? sortedRecords
-      : sortedRecords.slice(0, 10);
+  const visibleRecords = viewAll
+    ? [...records].sort(
+        (a, b) =>
+          new Date(b.lastAnswered).getTime() -
+          new Date(a.lastAnswered).getTime()
+      )
+    : [...records]
+        .sort(
+          (a, b) =>
+            new Date(b.lastAnswered).getTime() -
+            new Date(a.lastAnswered).getTime()
+        )
+        .slice(0, 10);
 
+  if (!currentWord && recordsLoaded) {
     return (
       <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
         <h1>🎉 全て完了しました！</h1>
         <h2 style={{ marginTop: "1rem" }}>✅ 学習履歴：</h2>
 
-        <div style={{ marginBottom: "1rem" }}>
+        <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
           <button
-            onClick={() => setShowAll(false)}
+            onClick={() => setViewAll(false)}
             style={{
-              marginRight: "8px",
-              backgroundColor: showAll ? "#ccc" : "#007bff",
-              color: "white",
-              border: "none",
               padding: "6px 12px",
-              borderRadius: "4px",
+              fontWeight: viewAll ? "normal" : "bold",
+              textDecoration: viewAll ? "none" : "underline",
+              background: "none",
+              border: "none",
               cursor: "pointer",
+              color: viewAll ? "#555" : "#000",
             }}
           >
             最新10件
           </button>
           <button
-            onClick={() => setShowAll(true)}
+            onClick={() => setViewAll(true)}
             style={{
-              backgroundColor: showAll ? "#007bff" : "#ccc",
-              color: "white",
-              border: "none",
               padding: "6px 12px",
-              borderRadius: "4px",
+              fontWeight: viewAll ? "bold" : "normal",
+              textDecoration: viewAll ? "underline" : "none",
+              background: "none",
+              border: "none",
               cursor: "pointer",
+              color: viewAll ? "#000" : "#555",
             }}
           >
             全件表示
@@ -179,7 +193,7 @@ function App() {
         </div>
 
         <ul>
-          {recordsToDisplay.map((r) => (
+          {visibleRecords.map((r) => (
             <li key={r.word}>
               <strong>{r.word}</strong>: 正解 {r.correctCount} 回 / スキップ{" "}
               {r.skipCount} 回
@@ -195,7 +209,6 @@ function App() {
         <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
           <button
             style={{
-              flex: 1,
               padding: "10px 20px",
               fontSize: "16px",
               backgroundColor: "#007bff",
@@ -204,18 +217,13 @@ function App() {
               borderRadius: "4px",
               cursor: "pointer",
             }}
-            onClick={() => {
-              // 再出題だけする
-              setWords([]);
-              setCurrentIndex(0);
-            }}
+            onClick={handleContinue}
           >
             ▶️ 続きを学習する
           </button>
 
           <button
             style={{
-              flex: 1,
               padding: "10px 20px",
               fontSize: "16px",
               backgroundColor: "#dc3545",
@@ -247,10 +255,12 @@ function App() {
   return (
     <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
       <h1>🧠 英単語ディクテーション</h1>
-      <TypingBox
-        prompt={currentWord.sentence ?? currentWord.word}
-        onComplete={handleComplete}
-      />
+      {currentWord && (
+        <TypingBox
+          prompt={currentWord.sentence ?? currentWord.word}
+          onComplete={handleComplete}
+        />
+      )}
     </div>
   );
 }
